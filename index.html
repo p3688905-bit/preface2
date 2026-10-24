@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>蘭亭集序 · 邏輯思辨研究 — 互動學習網頁</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-tc@5.1.0/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-tc@5.1.0/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-tc@5.1.0/900.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ma-shan-zheng@5.1.0/400.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={theme:{extend:{
+  colors:{paper:'#FBF6EA',ink:'#2B2620',cinnabar:'#C8402F',jade:'#1F8A70',gold:'#C08A2D',indigo:'#4A69A8',mist:'#EFE7D3',cream:'#FFFDF6'},
+  fontFamily:{serif:['"Noto Serif TC"','serif'],brush:['"Ma Shan Zheng"','"Noto Serif TC"','cursive']}
+}}};
+</script>
+<style>
+html{scroll-behavior:smooth}
+body{background:#FBF6EA;background-image:radial-gradient(rgba(192,138,45,.06) 1px,transparent 1px);background-size:22px 22px}
+.brush{font-family:"Ma Shan Zheng","Noto Serif TC",cursive}
+.card{background:rgba(255,253,246,.92);border:1px solid rgba(192,138,45,.25);border-radius:1.1rem;box-shadow:0 4px 20px rgba(80,60,20,.07)}
+.tagchip{display:inline-flex;align-items:center;gap:.35rem;border-radius:999px;padding:.28rem .85rem;font-size:.78rem;font-weight:600}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.on{opacity:1;transform:none}
+.seal{display:inline-block;background:#C8402F;color:#fff;font-weight:900;border-radius:.55rem;box-shadow:0 3px 10px rgba(200,64,47,.35)}
+#progressbar{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,#C8402F,#C08A2D,#1F8A70);width:0;z-index:60;transition:width .1s linear}
+.navlink{position:relative;padding:.35rem .2rem;font-size:.9rem;color:#5c5344;white-space:nowrap;transition:color .2s}
+.navlink:hover{color:#C8402F}
+.navlink.active{color:#C8402F;font-weight:700}
+.navlink.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:3px;border-radius:2px;background:#C8402F}
+.curve-node{cursor:pointer;transition:transform .25s}
+.curve-node:hover{transform:scale(1.1)}
+.panel-anim{animation:fadein .45s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.flowbox{cursor:pointer;transition:all .25s;border:2px solid transparent}
+.flowbox.active{border-color:#C8402F;background:#fff;transform:translateY(-4px);box-shadow:0 10px 24px rgba(200,64,47,.18)}
+.flowarrow{color:#C08A2D;font-weight:900}
+.acc-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s ease}
+.acc-body.open{grid-template-rows:1fr}
+.acc-inner{overflow:hidden}
+.tabbtn{transition:all .25s}
+.tabbtn.active{background:#2B2620;color:#FBF6EA;transform:translateY(-2px);box-shadow:0 6px 14px rgba(43,38,32,.25)}
+.tabpane{animation:fadein .4s ease}
+.arg-item{cursor:pointer}
+.arg-note{display:none}
+.arg-item.open .arg-note{display:block;animation:fadein .35s ease}
+.qopt{transition:all .2s;cursor:pointer}
+.qopt:hover:not(.locked){border-color:#C8402F;transform:translateX(4px)}
+.qopt.correct{background:#1F8A70!important;color:#fff!important;border-color:#1F8A70!important}
+.qopt.wrong{background:#C8402F!important;color:#fff!important;border-color:#C8402F!important;opacity:.85}
+.qopt.locked{cursor:default}
+.dimbar{height:10px;border-radius:999px;background:#EFE7D3;overflow:hidden}
+.dimfill{height:100%;border-radius:999px;transition:width .8s ease}
+.zhi-float{position:absolute;font-family:"Ma Shan Zheng";color:rgba(200,64,47,.08);user-select:none;pointer-events:none;animation:floaty 9s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-22px) rotate(6deg)}}
+</style>
+</head>
+<body class="font-serif text-ink antialiased">
+<div id="progressbar"></div>
+
+<!-- NAV -->
+<nav class="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-gold/20">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4 overflow-x-auto">
+    <a href="#top" class="flex items-center gap-2 shrink-0">
+      <span class="seal px-2 py-1 text-sm brush">辯</span>
+      <span class="font-black text-lg">蘭亭 <span class="text-cinnabar">·</span> 邏輯思辨研究</span>
+    </a>
+    <div class="flex items-center gap-4 ml-auto">
+      <a class="navlink" href="#map">論證總圖</a>
+      <a class="navlink" href="#emotion">情感辯證</a>
+      <a class="navlink" href="#life">生命之思</a>
+      <a class="navlink" href="#critique">齊生死之辨</a>
+      <a class="navlink" href="#verdict">思辨結語</a>
+      <a class="navlink" href="#quiz">邏輯測驗</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header id="top" class="relative overflow-hidden">
+  <span class="zhi-float text-8xl" style="left:5%;top:14%">辯</span>
+  <span class="zhi-float text-6xl" style="left:88%;top:10%;animation-delay:2s">思</span>
+  <span class="zhi-float text-7xl" style="left:80%;top:64%;animation-delay:4s">理</span>
+  <span class="zhi-float text-5xl" style="left:10%;top:66%;animation-delay:1s">悟</span>
+  <div class="max-w-6xl mx-auto px-4 pt-20 pb-16 md:pt-28 md:pb-20 text-center">
+    <p class="tagchip bg-white/80 text-cinnabar border border-cinnabar/30 mx-auto">只聚焦一件事：這篇序文「如何論證」</p>
+    <h1 class="brush text-5xl md:text-7xl mt-6 tracking-wide drop-shadow-sm">蘭亭集序的邏輯思辨</h1>
+    <p class="mt-4 text-base md:text-xl font-bold text-gold tracking-widest">情感辯證 × 生命之思 × 齊生死之批判</p>
+    <p class="mt-6 max-w-2xl mx-auto text-sm md:text-base text-ink/70 leading-7">
+      〈蘭亭集序〉三百二十四字，不只是抒情名篇，更是一場環環相扣的論證：
+      由「樂」的經驗出發，經「痛」的內在否定、「悲」的歸納躍升，到對玄學答案的批判與對「記錄」的建構。
+      本頁<b>只從邏輯思辨的角度</b>，拆解它的三段論證。
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3 text-sm">
+      <a href="#emotion" class="tagchip bg-jade text-white">主題一 · 情感流變的辯證關係</a>
+      <a href="#life" class="tagchip bg-cinnabar text-white">主題二 · 生命有限與價值之思</a>
+      <a href="#critique" class="tagchip bg-indigo text-white">主題三 · 對「齊生死」的批判</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- 論證總圖 -->
+<section id="map" class="max-w-6xl mx-auto px-4 pb-14">
+  <div class="reveal text-center mb-8">
+    <p class="text-cinnabar font-bold tracking-widest">OVERVIEW · 全文論證總圖</p>
+    <h2 class="brush text-4xl md:text-5xl mt-2">一條思辨之路：由經驗到答案</h2>
+    <p class="mt-3 text-ink/60 max-w-3xl mx-auto text-sm leading-6">全文的論證可濃縮為五步。<b>點擊任一方框</b>，查看該步的邏輯功能與推理內容。</p>
+  </div>
+  <div class="reveal card p-6 md:p-8">
+    <div id="flowBoxes" class="flex flex-wrap items-center justify-center gap-2"></div>
+    <div id="flowDetail" class="mt-6 bg-mist/60 rounded-xl p-5 text-sm leading-7 hidden"></div>
+  </div>
+</section>
+
+<!-- 主題一 -->
+<section id="emotion" class="bg-gradient-to-b from-transparent via-mist/60 to-transparent py-14">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="reveal text-center mb-8">
+      <p class="text-jade font-bold tracking-widest">主題一 · 情感流變與思想轉折的辯證關係</p>
+      <h2 class="brush text-4xl md:text-5xl mt-2">樂、痛、悲、悟：情感為何「必然」轉折？</h2>
+      <p class="mt-3 text-ink/60 max-w-3xl mx-auto text-sm leading-6">
+        思辨問題：<b>四次情感轉折，是隨心情起伏，還是每一步都由前一步的邏輯內部必然推出？</b>
+        答案是後者——「信可樂也」「豈不痛哉」「悲夫」三個語氣節點，標記的正是論證的三個推理站點。點擊曲線節點，查看每一站的邏輯形式。
+      </p>
+    </div>
+
+    <div class="reveal card p-4 md:p-6">
+      <svg id="curve" viewBox="0 0 840 300" class="w-full" style="max-height:300px"></svg>
+    </div>
+
+    <div id="stagePanel" class="reveal card p-6 md:p-8 mt-6"></div>
+    <div class="flex justify-center gap-3 mt-6">
+      <button id="prevStage" class="px-5 py-2 rounded-full border-2 border-ink/20 font-bold hover:border-cinnabar hover:text-cinnabar transition">◀ 上一階段</button>
+      <button id="nextStage" class="px-5 py-2 rounded-full bg-ink text-paper font-bold hover:bg-cinnabar transition">下一階段 ▶</button>
+    </div>
+
+    <h3 class="reveal font-black text-lg mt-12 mb-3">🧩 三次轉折的辯證性質</h3>
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="reveal card p-6" style="border-top:4px solid #1F8A70">
+        <p class="brush text-3xl text-jade">樂 ➜ 痛</p>
+        <p class="font-black mt-1">內在否定：樂極生悲</p>
+        <p class="text-sm text-ink/70 mt-2 leading-6">否定的動力不在外部，而在「樂」自身：「暫得於己」已把短暫性寫進快樂的定義裡。<b>轉折是自生的，不是外鑠的</b>——這正是辯證法所謂「內在否定」。</p>
+      </div>
+      <div class="reveal card p-6" style="border-top:4px solid #C8402F">
+        <p class="brush text-3xl text-cinnabar">痛 ➜ 悲</p>
+        <p class="font-black mt-1">歸納躍升：由特殊到普遍</p>
+        <p class="text-sm text-ink/70 mt-2 leading-6">由「一場雅集之散」推到「一切歡樂之逝」，再推到「一切生命之盡」。這是兩次歸納躍升，以「猶……況……」的<b>層遞論證</b>完成——理據由輕而重，結論由小及大。</p>
+      </div>
+      <div class="reveal card p-6" style="border-top:4px solid #C08A2D">
+        <p class="brush text-3xl text-gold">悲 ➜ 悟</p>
+        <p class="font-black mt-1">辯證揚棄：破而後立</p>
+        <p class="text-sm text-ink/70 mt-2 leading-6">「悟」不是取消悲，而是揚棄悲：先破錯誤答案（一死生、齊彭殤為虛誕妄作），再立真實答案（記錄與共鳴）。<b>否定之否定</b>，情感由此得到安頓。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 主題二 -->
+<section id="life" class="max-w-6xl mx-auto px-4 py-14">
+  <div class="reveal text-center mb-8">
+    <p class="text-cinnabar font-bold tracking-widest">主題二 · 生命有限與人生價值的思考</p>
+    <h2 class="brush text-4xl md:text-5xl mt-2">死亡論證：四個前提，一個結論</h2>
+    <p class="mt-3 text-ink/60 max-w-3xl mx-auto text-sm leading-6">
+      思辨問題：<b>「死生亦大矣，豈不痛哉」是情緒的宣洩，還是一個有效推論的結論？</b>
+      拆解第三段的論證結構，會發現它是由心理事實推進到存在事實的嚴密推理。<b>點擊各前提</b>，查看其文本根據與邏輯功能。
+    </p>
+  </div>
+
+  <!-- 死亡論證重建 -->
+  <div class="reveal card p-6 md:p-8 mb-6">
+    <h3 class="font-black text-lg mb-4">⛓️ 論證重建：從「歡樂短暫」到「死生亦大」</h3>
+    <div id="premises" class="space-y-3"></div>
+    <div class="mt-4 text-xs text-ink/55 leading-5 border-l-4 border-cinnabar pl-3">
+      <b>有效性評估：</b>P1→P2 建立「心理事實」（快樂必然消逝且不可逆），P3→P4 建立「存在事實」（生命終歸於盡），結論則由「尚且……何況……」的層遞結構把兩者扣合——<b>以「輕」證「重」</b>：短暫的歡樂消逝尚且足以興懷，更何況有限的生命終盡？前提若真，結論不可避免。
+    </div>
+  </div>
+
+  <!-- 靜躁歸納 -->
+  <div class="reveal card p-6 md:p-8 mb-6">
+    <h3 class="font-black text-lg mb-1">🎯 論證策略拆解：「先退一步，再進一步」</h3>
+    <p class="text-xs text-ink/55 mb-4">「或取諸懷抱，悟言一室之內；或因寄所託，放浪形骸之外……」這段是全文最精巧的論證設計，分三步：</p>
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="bg-mist/60 rounded-xl p-4">
+        <p class="seal px-2 py-0.5 text-xs brush">第一步</p>
+        <p class="font-black mt-2">承認差異</p>
+        <p class="text-sm text-ink/70 mt-1 leading-6">「雖趣舍萬殊，靜躁不同」——先尊重每個人活法的差異，不預設立場，贏得讀者共識。</p>
+      </div>
+      <div class="bg-mist/60 rounded-xl p-4">
+        <p class="seal px-2 py-0.5 text-xs brush">第二步</p>
+        <p class="font-black mt-2">提取共相</p>
+        <p class="text-sm text-ink/70 mt-1 leading-6">「當其欣於所遇，暫得於己，快然自足，不知老之將至」——指出無論靜躁，都共享同一個心理結構。</p>
+      </div>
+      <div class="bg-mist/60 rounded-xl p-4">
+        <p class="seal px-2 py-0.5 text-xs brush">第三步</p>
+        <p class="font-black mt-2">推出通則</p>
+        <p class="text-sm text-ink/70 mt-1 leading-6">「及其所之既倦……終期於盡」——共相既立，則無論怎麼活，都同歸有限與消亡，論證遂不可抵抗。</p>
+      </div>
+    </div>
+    <p class="text-xs text-ink/55 mt-4 leading-5">※ 邏輯學名稱：這是「<b>先讓步、後歸納</b>」的論證策略（ concession + generalization ）。先承認對方案例成立，再指出所有案例共享的關鍵屬性，使結論覆蓋一切可能——無一活法可倖免於論證之外。</p>
+  </div>
+
+  <!-- 三條路比較 -->
+  <div class="reveal card p-6 md:p-8 mb-6">
+    <h3 class="font-black text-lg mb-1">⚖️ 三條人生之路的邏輯評估</h3>
+    <p class="text-xs text-ink/55 mb-4">面對同一道「生命終歸消亡」的難題，魏晉思想市場上有三個答案。切換查看各自的論證結構與三維評估：<b>自洽性</b>（內部是否矛盾）、<b>經驗證成</b>（是否被實際經驗支持）、<b>價值可持續性</b>（能否真正安頓生命）。</p>
+    <div class="flex flex-wrap gap-2 mb-5">
+      <button class="tabbtn active px-4 py-2 rounded-full text-sm font-bold border border-ink/15 bg-white" data-tab="0">🍶 及時行樂</button>
+      <button class="tabbtn px-4 py-2 rounded-full text-sm font-bold border border-ink/15 bg-white" data-tab="1">☯️ 玄學齊物</button>
+      <button class="tabbtn px-4 py-2 rounded-full text-sm font-bold border border-ink/15 bg-white" data-tab="2">✍️ 記錄共鳴（王羲之之選）</button>
+    </div>
+    <div id="tabPanes"></div>
+  </div>
+
+  <!-- 時間對稱 -->
+  <div class="reveal card p-8 text-center relative overflow-hidden">
+    <p class="brush text-3xl md:text-4xl text-cinnabar">後之視今，亦猶今之視昔</p>
+    <p class="text-sm text-ink/65 mt-4 max-w-2xl mx-auto leading-6">
+      此句是全文論證的閉環：<b>時間對稱</b>（後人視今 ＝ 今人視昔）＋ <b>情感不變前提</b>（世殊事異，所以興懷，其致一也）→ <b>類比推論</b>：我所記錄的此刻，必將被後人以同樣的感懷讀到。
+    </p>
+    <p class="text-xs text-ink/50 mt-3 max-w-2xl mx-auto leading-5">更妙的是自我指涉：王羲之本人正是「今之視昔」的實例（每覽昔人興感之由，若合一契），而讀者正是他所預言的「後之覽者」——論證在自己身上成立，又在讀者身上再次成立。</p>
+  </div>
+</section>
+
+<!-- 主題三 -->
+<section id="critique" class="bg-gradient-to-b from-transparent via-mist/60 to-transparent py-14">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="reveal text-center mb-8">
+      <p class="text-indigo font-bold tracking-widest">主題三 · 對玄學「齊生死」觀的反思與批判</p>
+      <h2 class="brush text-4xl md:text-5xl mt-2">「一死生為虛誕，齊彭殤為妄作」</h2>
+      <p class="mt-3 text-ink/60 max-w-3xl mx-auto text-sm leading-6">
+        思辨問題：<b>用哲學取消生死的差別，算不算一個「好答案」？王羲之的反駁，在邏輯上站得住嗎？</b>
+        這一節是全文唯一的正面論戰——他把整個時代的主流思潮當作對手。
+      </p>
+    </div>
+
+    <!-- 雙方論證重建 -->
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="reveal card p-6" style="border-top:4px solid #4A69A8">
+        <p class="tagchip bg-indigo/10 text-indigo border border-indigo/30">被批判方：莊子「齊生死」論</p>
+        <div class="mt-4 space-y-2 text-sm leading-6">
+          <div class="bg-indigo/5 rounded-lg p-3"><b>P1｜</b>以道觀之，萬物本齊（齊物的形上學前提）</div>
+          <div class="bg-indigo/5 rounded-lg p-3"><b>P2｜</b>生與死、壽與夭，皆是物的差別相</div>
+          <div class="bg-indigo/10 rounded-lg p-3 font-bold"><b>C｜</b>故可「一死生、齊彭殤」——不悅生，不惡死</div>
+        </div>
+        <p class="text-xs text-ink/55 mt-3 leading-5">論證目標：以認知轉換消解死亡焦慮。其性質是「<b>價值態度命題</b>」（應如何面對死亡），而非「事實命題」（生死是否物理相同）——這一點是理解王羲之批判的關鍵。</p>
+      </div>
+      <div class="reveal card p-6" style="border-top:4px solid #C8402F">
+        <p class="tagchip bg-cinnabar/10 text-cinnabar border border-cinnabar/30">批判方：王羲之的反駁</p>
+        <div class="mt-4 space-y-2 text-sm leading-6">
+          <div class="bg-cinnabar/5 rounded-lg p-3"><b>反證｜</b>「每覽昔人興感之由，若合一契，未嘗不臨文嗟悼，不能喻之於懷」——情感經驗與理論相悖</div>
+          <div class="bg-cinnabar/5 rounded-lg p-3"><b>價值論｜</b>生就是生，死就是死；生命正因其有別、有限，才珍貴</div>
+          <div class="bg-cinnabar/10 rounded-lg p-3 font-bold"><b>結論｜</b>「固知一死生為虛誕，齊彭殤為妄作」</div>
+        </div>
+        <p class="text-xs text-ink/55 mt-3 leading-5">注意「固知」二字——「本來就知道」：他不把這當作新發現，而視為人人情感中本有的常識，只是被玄談遮蔽了。</p>
+      </div>
+    </div>
+
+    <!-- 思辨擂台 -->
+    <div class="reveal card p-6 md:p-8 mb-8">
+      <h3 class="font-black text-lg mb-4 text-center">⚔️ 思辨擂台：逐條論點與邏輯評註（點擊展開）</h3>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="rounded-xl border-2 border-indigo/30 bg-indigo/5 p-5">
+          <p class="tagchip bg-indigo text-white">莊子一方：以理化情</p>
+          <div id="argZhuang" class="space-y-3 mt-3"></div>
+        </div>
+        <div class="rounded-xl border-2 border-cinnabar/30 bg-cinnabar/5 p-5">
+          <p class="tagchip bg-cinnabar text-white">王羲之：情不可誣</p>
+          <div id="argWang" class="space-y-3 mt-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 邏輯三層析 -->
+    <div class="reveal card p-6 md:p-8">
+      <h3 class="font-black text-lg mb-4">🔍 邏輯三層析：這場批判的力度與邊界</h3>
+      <div class="flex flex-wrap gap-2 mb-5">
+        <button class="tabbtn active px-4 py-2 rounded-full text-sm font-bold border border-ink/15 bg-white" data-ltab="0">第一層 · 概念釐清</button>
+        <button class="tabbtn px-4 py-2 rounded-full text-sm font-bold border border-ink/15 bg-white" data-ltab="1">第二層 · 否證式反駁</button>
+        <button class="tabbtn px-4 py-2 rounded-full text-sm font-bold border border-ink/15 bg-white" data-ltab="2">第三層 · 辯證綜合</button>
+      </div>
+      <div id="ltabPanes"></div>
+      <div class="mt-6 rounded-xl bg-ink text-paper p-5 text-sm leading-7">
+        <b class="text-gold">總評｜</b>王羲之的批判，不是學派意氣，而是兩種面對有限性的路線之爭——<b>哲學的消解</b>（取消問題）與 <b>文學的揚棄</b>（承擔問題）。其立場既不樂觀也不悲觀，而是「清醒而承擔」：這正是「豈不痛哉」背後真正的邏輯力量——痛，不是論證的弱點，而是論證的起點。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 思辨結語 -->
+<section id="verdict" class="max-w-4xl mx-auto px-4 py-14">
+  <div class="reveal text-center mb-8">
+    <p class="text-gold font-bold tracking-widest">VERDICT · 思辨結語</p>
+    <h2 class="brush text-4xl md:text-5xl mt-2">蘭亭教給我們的邏輯</h2>
+  </div>
+  <div class="reveal card p-6 md:p-8">
+    <div class="flex flex-wrap items-center justify-center gap-2 text-sm font-bold text-center">
+      <span class="tagchip bg-jade/10 text-jade border border-jade/40">① 經驗立基｜樂</span><span class="flowarrow">➜</span>
+      <span class="tagchip bg-cinnabar/10 text-cinnabar border border-cinnabar/40">② 內在否定｜痛</span><span class="flowarrow">➜</span>
+      <span class="tagchip bg-indigo/10 text-indigo border border-indigo/40">③ 歸納普遍化｜悲</span><span class="flowarrow">➜</span>
+      <span class="tagchip bg-white text-ink border border-ink/30">④ 破虛妄答案｜斥齊生死</span><span class="flowarrow">➜</span>
+      <span class="tagchip bg-gold/15 text-gold border border-gold/50">⑤ 立真實答案｜記錄與共鳴</span>
+    </div>
+    <p class="text-sm text-ink/75 leading-7 mt-6">
+      整篇文章的思辨結論只有一句：<b>人生的價值，不在逃避有限，而在直面有限、並在有限中創造可以穿越時間之物。</b>
+      死亡不可免（終期於盡），故行樂與齊物皆非究竟；但「所以興懷，其致一也」——情感結構的恆常，使記錄成為可能，使共鳴成為真實。
+      王羲之沒有戰勝死亡，他做的是更難的事：<b>讓死亡進入論證，而論證依然成立。</b>
+    </p>
+    <p class="text-center brush text-2xl text-cinnabar mt-6">後之覽者，亦將有感於斯文</p>
+  </div>
+</section>
+
+<!-- 邏輯測驗 -->
+<section id="quiz" class="max-w-3xl mx-auto px-4 pb-16">
+  <div class="reveal text-center mb-8">
+    <p class="text-jade font-bold tracking-widest">CHALLENGE</p>
+    <h2 class="brush text-4xl md:text-5xl mt-2">邏輯思辨測驗</h2>
+    <p class="mt-3 text-ink/60 text-sm">八題，全部聚焦論證結構與推理方法。</p>
+  </div>
+  <div id="quizBox" class="reveal card p-6 md:p-8"></div>
+</section>
+</main>
+
+<footer class="border-t border-gold/20 bg-cream">
+  <div class="max-w-6xl mx-auto px-4 py-8 text-center text-sm text-ink/60 leading-7">
+    <p class="brush text-xl text-cinnabar">固知一死生為虛誕，齊彭殤為妄作</p>
+    <p class="mt-2 text-xs text-ink/40">蘭亭 · 邏輯思辨研究 — 內容依據三份上傳講義整理，僅保留邏輯思辨部分</p>
+  </div>
+</footer>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+
+/* ---------- 論證總圖 ---------- */
+const FLOW=[
+ {t:"① 樂｜經驗立基",tag:"敘事寫景",c:"#1F8A70",d:"<b>邏輯功能：</b>建立論證的原始經驗。良辰、美景、人和（崇山峻嶺，一觴一詠，信可樂也）確立「生命值得歡慶」這一起點。<b>若無此樂，後文所惜者便不存在</b>——值得失去，才值得感嘆，這是全篇論證的隱藏前提。同時「仰觀宇宙之大，俯察品類之盛」已埋下無限與有限的對照，轉折的種子在此種下。"},
+ {t:"② 痛｜內在否定",tag:"緣情抒悲",c:"#C8402F",d:"<b>邏輯功能：</b>對「樂」的內在否定。推理鏈：欣於所遇 → 暫得於己（短暫性）→ 快然自足、不知老之將至 → 所之既倦 → 情隨事遷 → 感慨係之。關鍵在「暫」字：快樂的消逝不需外力奪取，<b>短暫性已寫在快樂的定義中</b>。故痛是樂的自我否定，此即「樂極生悲」的辯證學涵義。"},
+ {t:"③ 悲｜歸納普遍化",tag:"由特殊到普遍",c:"#4A69A8",d:"<b>邏輯功能：</b>兩次歸納躍升。第一躍：由「這場雅集」到「一切歡樂」（向之所欣，俛仰之間，已為陳跡）；第二躍：由「歡樂之逝」到「生命之盡」（況脩短隨化，終期於盡）。「猶……況……」是層遞論證：輕者尚且如此，重者更不待言。引「死生亦大矣」（《莊子·德充符》），將個人感嘆收束為人類普遍命題。"},
+ {t:"④ 破｜批判齊生死",tag:"議論明理",c:"#2B2620",d:"<b>邏輯功能：</b>排除虛假答案。若「一死生、齊彭殤」成立，則悲無由生；但「每覽昔人興感之由，若合一契，未嘗不臨文嗟悼」——<b>情感的普遍事實反證了理論的無效</b>。王羲之以否證式（若真則不應悲悼，實則悲悼，故不真）斥其為「虛誕」「妄作」，拒絕用哲學空談麻痹悲痛。"},
+ {t:"⑤ 立｜記錄與共鳴",tag:"錄文垂世",c:"#C08A2D",d:"<b>邏輯功能：</b>提出真實答案。大前提：世殊事異，所以興懷，其致一也（情感結構不變）；小前提：後之視今，亦猶今之視昔（時間對稱）；結論：故列敘時人，錄其所述——後之覽者，亦將有感於斯文。<b>肉體必朽，但感懷的情致可被文字反覆點燃</b>：死不可免，而情可不朽。論證至此由破轉立，完成閉環。"}
+];
+$("#flowBoxes").innerHTML=FLOW.map(function(f,i){
+ return '<div class="flowbox bg-mist/60 rounded-xl px-4 py-3 text-sm font-bold" data-f="'+i+'" style="border:2px solid transparent"><span style="color:'+f.c+'">'+f.t+'</span><span class="block text-xs font-normal text-ink/50 mt-0.5">'+f.tag+'</span></div>'+
+ (i<FLOW.length-1?'<span class="flowarrow">➜</span>':'');
+}).join("");
+$$(".flowbox").forEach(function(b){
+ b.onclick=function(){
+   $$(".flowbox").forEach(function(x){x.classList.remove("active");});
+   b.classList.add("active");
+   const d=$("#flowDetail");
+   d.classList.remove("hidden");
+   d.innerHTML='<p class="panel-anim">'+FLOW[+b.dataset.f].d+'</p>';
+ };
+});
+
+/* ---------- 主題一：情感曲線 ---------- */
+const STAGES=[
+ {char:"樂",color:"#1F8A70",x:200,y:72,tag:"經驗立基 · 信可樂也",title:"「樂」——論證的經驗起點",
+  form:"良辰（天朗氣清）＋ 美景（崇山峻嶺）＋ 人和（群賢畢至） ➜ 信可樂也",
+  hidden:"隱藏前提：值得歡慶的生命，才有值得感嘆的消逝。「仰觀宇宙之大」已把「無限」帶入意識，為後文「有限」之悲預作對照。",
+  dia:"辯證角色【正】：沒有這一環節，後面的痛與悲便失去對象。全文先極寫其樂，不是鋪張，而是為論證儲備勢能——樂寫得越飽滿，轉折的邏輯張力越強。"},
+ {char:"痛",color:"#C8402F",x:400,y:180,tag:"內在否定 · 情隨事遷",title:"「痛」——歡樂的自我瓦解",
+  form:"大前提：凡快樂皆短暫（暫得於己）<br>小前提：眼前的快樂是快樂的一種（欣於所遇）<br>結論：眼前的快樂必將消逝 ➜ 情隨事遷，感慨係之",
+  hidden:"關鍵詞「暫」：短暫性不是快樂的偶發屬性，而是它的本質屬性。「不知老之將至」恰說明——忘卻時間之時，正是時間作用之時。",
+  dia:"辯證角色【反】：這是否定，但不是外力造成的否定，而是內在否定——瓦解的動力來自快樂自身（所之既倦）。哲學上這叫「事物由於自身本性而過渡到反面」。"},
+ {char:"悲",color:"#4A69A8",x:560,y:228,tag:"歸納普遍化 · 豈不痛哉",title:"「悲」——由特殊到普遍的躍升",
+  form:"猶：短暫歡樂之逝，尚且令人興懷（輕）<br>況：有限生命之盡，豈不更令人悲痛（重）<br>➜ 修短隨化，終期於盡 ➜ 死生亦大矣",
+  hidden:"論證技法：層遞（由輕及重）＋ 歸納（由一場雅集到一切生命）。「修短隨化」先承認壽命之異，「終期於盡」再抹平一切異——死亡成為唯一公約數。",
+  dia:"辯證角色【深】：從「我的感傷」過渡到「人類的命運」。注意這一步不是情緒放大，而是邏輯推廣——結論的普遍性由「終期於盡」的全稱性保證。"},
+ {char:"悟",color:"#C08A2D",x:730,y:96,tag:"辯證揚棄 · 錄文垂世",title:"「悟」——破虛妄而立真實",
+  form:"破：一死生＝虛誕，齊彭殤＝妄作（排除假答案）<br>立：後之視今＝今之視昔（時間對稱）＋ 其致一也（情感恆常）<br>➜ 列敘時人，錄其所述 ➜ 後之覽者，亦將有感於斯文",
+  hidden:"「悟」不是取消悲，而是揚棄悲：悲被保存（承認痛）、被轉化（化為記錄）、被超越（共鳴傳世）。否定之否定，情感得到安頓。",
+  dia:"辯證角色【合】：正（樂）反（痛悲）之後的合。全文最後不是回到樂，而是帶著對死的清醒回到生活，並留下一份可以穿越時間的見證——這是論證的完成，也是價值的安頓。"}
+];
+(function(){
+ const svg=$("#curve");
+ const pts=[[55,170],[200,72],[400,180],[560,228],[730,96],[810,86]];
+ let d="M"+pts[0][0]+","+pts[0][1];
+ for(let i=0;i<pts.length-1;i++){
+   const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+   d+=" C"+(p1[0]+(p2[0]-p0[0])/6)+","+(p1[1]+(p2[1]-p0[1])/6)+" "+(p2[0]-(p3[0]-p1[0])/6)+","+(p2[1]-(p3[1]-p1[1])/6)+" "+p2[0]+","+p2[1];
+ }
+ svg.innerHTML=
+ '<defs><linearGradient id="curveg" x1="0" y1="0" x2="1" y2="0">'+
+ '<stop offset="0" stop-color="#1F8A70"/><stop offset=".38" stop-color="#C8402F"/>'+
+ '<stop offset=".66" stop-color="#4A69A8"/><stop offset="1" stop-color="#C08A2D"/></linearGradient></defs>'+
+ '<text x="30" y="26" font-size="13" fill="#8a7f6a">情感強度 ⌒ 論證推進 ➜</text>'+
+ '<path d="'+d+'" fill="none" stroke="#EFE7D3" stroke-width="12" stroke-linecap="round"/>'+
+ '<path id="curveLine" d="'+d+'" fill="none" stroke="url(#curveg)" stroke-width="5" stroke-linecap="round" stroke-dasharray="1500" stroke-dashoffset="1500"/>'+
+ STAGES.map(function(s,i){
+   return '<g class="curve-node" data-i="'+i+'" transform="translate('+s.x+','+s.y+')">'+
+   '<circle r="27" fill="#FFFDF6" stroke="'+s.color+'" stroke-width="3"/>'+
+   '<text y="10" text-anchor="middle" font-size="26" fill="'+s.color+'" style="font-family:\'Ma Shan Zheng\'">'+s.char+'</text>'+
+   '<text y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#5c5344">'+["經驗立基","內在否定","歸納躍升","破而後立"][i]+'</text></g>';
+ }).join("");
+ svg.querySelectorAll(".curve-node").forEach(function(n){n.addEventListener("click",function(){showStage(+n.dataset.i);});});
+ setTimeout(function(){const l=$("#curveLine");l.style.transition="stroke-dashoffset 2.2s ease";l.style.strokeDashoffset="0";},350);
+})();
+let curStage=0;
+function showStage(i){
+ curStage=(i+STAGES.length)%STAGES.length;
+ const s=STAGES[curStage];
+ document.querySelectorAll(".curve-node").forEach(function(n,j){
+   const c=n.querySelector("circle");
+   c.setAttribute("stroke-width",j===curStage?6:3);
+   c.setAttribute("fill",j===curStage?s.color+"22":"#FFFDF6");
+ });
+ $("#stagePanel").innerHTML=
+ '<div class="panel-anim">'+
+ '<div class="flex flex-wrap items-center gap-3">'+
+ '<span class="brush text-5xl" style="color:'+s.color+'">'+s.char+'</span>'+
+ '<div><span class="tagchip" style="background:'+s.color+'15;color:'+s.color+';border:1px solid '+s.color+'50">'+s.tag+'</span>'+
+ '<h3 class="font-black text-lg md:text-xl mt-1">'+s.title+'</h3></div></div>'+
+ '<div class="mt-4 bg-white border-2 border-dashed rounded-xl p-4" style="border-color:'+s.color+'66">'+
+ '<p class="text-xs font-black mb-1" style="color:'+s.color+'">🔣 邏輯形式</p>'+
+ '<p class="text-sm leading-7 font-bold">'+s.form+'</p></div>'+
+ '<p class="text-sm text-ink/70 mt-4 leading-7 bg-mist/60 rounded-xl p-4"><b style="color:'+s.color+'">📜 文本關鍵｜</b>'+s.hidden+'</p>'+
+ '<p class="text-sm text-ink/70 mt-3 leading-7"><b>🧠 辯證分析｜</b>'+s.dia+'</p></div>';
+}
+$("#prevStage").onclick=function(){showStage(curStage-1);};
+$("#nextStage").onclick=function(){showStage(curStage+1);};
+showStage(0);
+
+/* ---------- 主題二：前提卡 ---------- */
+const PREMS=[
+ {id:"P1",t:"前提一 · 歡樂的短暫性",txt:"「當其欣於所遇，暫得於己」",base:"文本根據：「暫得於己，快然自足，不知老之將至」",note:"邏輯功能：確立「心理事實」——一切歡樂自始即被標記為暫時。此为前提链的第一环，後面的消逝、陳跡、興懷皆由此推出。"},
+ {id:"P2",t:"前提二 · 消逝的不可逆",txt:"「向之所欣，俛仰之間，已為陳跡」",base:"文本根據：「俛仰之間，已為陳跡，猶不能不以之興懷」",note:"邏輯功能：補上「不可逆性」——消逝不只是發生，而且不可挽回。「猶不能不」以雙重否定強化：感懷是必然反應，不是個人多愁善感。"},
+ {id:"P3",t:"前提三 · 壽命的隨化",txt:"「修短隨化」",base:"文本根據：「況脩短隨化，終期於盡」",note:"邏輯功能：先讓步承認差異——壽命長短各有不同。這一步看似削弱論證，實則為下一步鋪路：差異再大，也逃不出同一終點。"},
+ {id:"P4",t:"前提四 · 終局的同一",txt:"「終期於盡」",base:"文本根據：同上；「死生亦大矣」（引《莊子·德充符》）",note:"邏輯功能：全稱命題——一切生命同歸於盡。至此，論證從「某些歡樂會消逝」躍升為「所有生命必消亡」，普遍性完成。"},
+ {id:"C",t:"結論 · 死生亦大矣，豈不痛哉",txt:"由心理事實（P1、P2）＋存在事實（P3、P4），經層遞推理得出",base:"論證形式：猶（輕者尚且如此）……況（重者更不待言）……",note:"邏輯評估：結論不是情緒口號，而是四個前提的必然歸結。「豈不痛哉」的反問形式，其實是在邀請讀者驗收推論——你若接受前提，便不能拒絕悲痛。"}
+];
+$("#premises").innerHTML=PREMS.map(function(p,i){
+ const isC=p.id==="C";
+ return '<div class="acc-inner">'+
+ '<button class="acc-head w-full text-left rounded-xl p-4 flex items-center gap-3 '+
+ (isC?'bg-cinnabar/10 border-2 border-cinnabar/40':'bg-mist/50 border border-gold/25 hover:border-cinnabar/40')+'" data-prem="'+i+'">'+
+ '<span class="seal px-2 py-1 text-xs brush shrink-0 '+
+ (isC?'':'!bg-gold')+'">'+p.id+'</span>'+
+ '<span class="flex-1"><b class="text-sm md:text-base">'+p.t+'</b>'+
+ '<span class="brush block text-base md:text-lg mt-1 '+(isC?'text-cinnabar':'')+'">'+p.txt+'</span></span>'+
+ '<span class="chev text-gold shrink-0">▾</span></button>'+
+ '<div class="acc-body" data-prembody="'+i+'"><div class="acc-inner px-4 pb-3 pt-2">'+
+ '<p class="text-sm leading-6 text-ink/75"><b class="text-jade">📜 '+p.base+'</b></p>'+
+ '<p class="text-sm leading-6 text-ink/75 mt-2">'+p.note+'</p></div></div></div>';
+}).join("");
+$$("[data-prem]").forEach(function(h){
+ h.onclick=function(){
+   const i=h.dataset.prem;
+   document.querySelector('[data-prembody="'+i+'"]').classList.toggle("open");
+   h.classList.toggle("open");
+ };
+});
+
+/* ---------- 主題二：三條路 ---------- */
+const PATHS=[
+ {h:"及時行樂（宴飲 · 放浪形骸）",logic:"論證結構：生命苦短（前提） ➜ 當盡享當下之樂（結論）。",
+  dims:[[ "自洽性",70,"#1F8A70"],["經驗證成",25,"#C8402F"],["價值可持續性",20,"#C8402F"]],
+  v:"王羲之的評判：「暫得於己，快然自足」——他承認此樂真實，但指出其結構缺陷：快樂既「暫」，則「所之既倦」必至。<b>行樂不解決有限，只是延遲對有限的覺察</b>；经验上，歡樂過後恰是更深的空虛。"},
+ {h:"玄學齊物（一死生 · 齊彭殤）",logic:"論證結構：痛苦源於執著生死之別（前提） ➜ 齊一之則痛自消（結論）。",
+  dims:[["自洽性",65,"#1F8A70"],["經驗證成",20,"#C8402F"],["價值可持續性",25,"#C8402F"]],
+  v:"王羲之的評判：「虛誕」「妄作」——理論無法消解真實情感（臨文嗟悼即是反證）。<b>以理滅情存在表演性矛盾：宣稱已超越悲傷的人，恰恰正在悲傷</b>。麻醉不是超越，只是把問題藏起來。"},
+ {h:"記錄共鳴（王羲之之選）",logic:"論證結構：情感結構恆常（其致一也）＋時間對稱（後之視今＝今之視昔） ➜ 記錄可使感懷穿越時間（結論）。",
+  dims:[["自洽性",90,"#1F8A70"],["經驗證成",85,"#1F8A70"],["價值可持續性",90,"#1F8A70"]],
+  v:"此答案的巧妙在於轉換問題：不問「如何逃避死亡」，而問「如何讓情感穿越死亡」。前提皆有經驗支持——「每覽昔人興感之由，若合一契」正是古今共鳴的實證。<b>死不可免，而情可不朽：有限者藉此參與無限。</b>"}
+];
+$("#tabPanes").innerHTML=PATHS.map(function(t,i){
+ const dims=t.dims.map(function(d){
+   return '<div class="mt-3"><div class="flex justify-between text-xs font-bold"><span>'+d[0]+'</span><span>'+d[1]+'%</span></div>'+
+   '<div class="dimbar mt-1"><div class="dimfill" style="width:'+d[1]+'%;background:'+d[2]+'"></div></div></div>';
+ }).join("");
+ return '<div class="tabpane'+(i?' hidden':'')+'" data-pane="'+i+'">'+
+ '<p class="font-black text-base mb-2">'+t.h+'</p>'+
+ '<p class="text-sm leading-7 text-ink/75 bg-mist/60 rounded-xl p-4">'+t.logic+'</p>'+
+ '<div class="grid sm:grid-cols-3 gap-x-6">'+dims+'</div>'+
+ '<p class="text-sm leading-7 mt-4 bg-white border border-gold/25 rounded-xl p-4">'+t.v+'</p></div>';
+}).join("");
+$$("[data-tab]").forEach(function(b){
+ b.onclick=function(){
+   $$("[data-tab]").forEach(function(x){x.classList.remove("active");});
+   b.classList.add("active");
+   $$("#tabPanes [data-pane]").forEach(function(p){p.classList.toggle("hidden",p.dataset.pane!==b.dataset.tab);});
+ };
+});
+
+/* ---------- 主題三：擂台 ---------- */
+const ARGS_Z=[
+ {t:"生死一如自然之化",n:"<b>論點：</b>生死如氣之聚散、四時之更替，悅生惡死是「不通乎命」。<br><b>邏輯評註：</b>這是一個以自然類比消解死亡特殊性的論證——其弱點在於：類比成立不等於情感解除。四季可以輪迴，個體生命不能。"},
+ {t:"齊物平等：彭殤無別",n:"<b>論點：</b>以道的無限尺度看，壽夭之別被稀釋為零。<br><b>邏輯評註：</b>此論證依賴視角切換（從有限到無限）。但人是活在有限視角中的存在——<b>用無限視角裁判有限人生的價值，有偷換論域之嫌</b>。"},
+ {t:"以理化情，解脫縛累",n:"<b>論點：</b>認知上一旦齊生死，哀樂便無從侵入。<br><b>邏輯評註：</b>這是把「應然」（不應悲傷）當作「實然」（不會悲傷）。王羲之的反擊恰在此處：情感事實不受理論支配。"}
+];
+const ARGS_W=[
+ {t:"經驗反證：臨文嗟悼",n:"<b>論點：</b>「每覽昔人興感之由，若合一契，未嘗不臨文嗟悼，不能喻之於懷。」<br><b>邏輯評註：</b>這是標準的否證式（modus tollens）——若齊生死為真，則讀古人傷逝之文不應悲悼；實則悲悼；故齊生死之說無效。<b>以普遍的情感事實检验哲學命題</b>。"},
+ {t:"價值論反駁：生之珍貴在於有別",n:"<b>論點：</b>「一死生為虛誕，齊彭殤為妄作」——生就是生，死就是死，生命正因其有差別、有限，才值得珍惜。<br><b>邏輯評註：</b>指出對方論證的價值論後果：若生死齊一，則一切珍惜皆失根據——這恰與人的真實生活態度相悖。"},
+ {t:"歷史證言：古今同悲",n:"<b>論點：</b>「後之視今，亦猶今之視昔」——世世代代的人都為生命短暫感傷。<br><b>邏輯評註：</b>以跨越時間的普遍共鳴（若合一契）作為歸納證據：<b>若「齊生死」是解藥，它早已生效</b>；千年皆然的事實，證明此痛真實而不可消解。"}
+];
+function renderArgs(id,data,hoverCls){
+ $(id).innerHTML=data.map(function(a,i){
+   return '<div class="arg-item bg-white rounded-xl border border-ink/10 p-4 '+hoverCls+'" data-arg>'+
+   '<p class="font-bold text-sm flex justify-between items-center gap-2"><span>'+(i+1)+'. '+a.t+'</span><span class="text-xs text-ink/40 shrink-0">＋評註</span></p>'+
+   '<p class="arg-note text-xs text-ink/65 leading-6 mt-2 border-t border-dashed border-ink/15 pt-2">'+a.n+'</p></div>';
+ }).join("");
+ $(id).querySelectorAll("[data-arg]").forEach(function(el){el.onclick=function(){el.classList.toggle("open");};});
+}
+renderArgs("#argZhuang",ARGS_Z,"hover:border-indigo/50");
+renderArgs("#argWang",ARGS_W,"hover:border-cinnabar/50");
+
+/* ---------- 主題三：三層析 ---------- */
+const LTABS=[
+ {h:"第一層 · 概念釐清：「一死生」究竟是什麼命題？",
+  b:"「一死生」在本義上是「<b>價值態度命題</b>」（應如何面對死亡），而非「事實命題」（生死在物理上是否相同）。王羲之斥其「虛誕」，實際是把批判焦點從「命題真假」移向「態度是否有效」——他追問的不是生死是否相同，而是：<b>這種看法能否真正安頓人心？</b>這一轉換使他繞開純粹的形上學爭論，直接檢驗學說的功用——這是極清醒的批判策略。"},
+ {h:"第二層 · 否證式反駁：「臨文嗟悼」的邏輯力量",
+  b:"王羲之最有力的論證是一個否證式（modus tollens）：<br>① 若「齊生死」成立，則人不應因生死之文而悲悼；<br>② 但「每覽昔人興感之由……未嘗不臨文嗟悼，不能喻之於懷」；<br>③ 故「齊生死」不成立。<br>此論證揭露了「以理滅情」的<b>表演性矛盾</b>：宣稱已超越悲傷的人，恰恰正在悲傷。情感的真誠由此成為檢驗哲學的標準——理论若不能解釋它聲稱要解決的經驗，便是虛誕。"},
+ {h:"第三層 · 辯證綜合：批判的邊界與超越",
+  b:"須看到批判的邊界：王羲之並未提供「戰勝死亡」的答案，他拒絕的是「假答案」。其建設性在於轉換問題——從「如何逃避死亡」轉為「如何讓情感穿越死亡」：以「後之視今，亦猶今之視昔」打通古今，以「列敘時人，錄其所述」對抗消逝，以「其致一也」實現另一種不朽。這既非樂觀主義，亦非悲觀主義，而是第三種立場：<b>清醒地承認有限，並以創造與共鳴承擔有限</b>——此即辯證的揚棄。"}
+];
+$("#ltabPanes").innerHTML=LTABS.map(function(t,i){
+ return '<div class="tabpane'+(i?' hidden':'')+'" data-lpane="'+i+'">'+
+ '<p class="font-black text-base mb-2">'+t.h+'</p>'+
+ '<p class="text-sm leading-7 text-ink/75 bg-mist/60 rounded-xl p-4">'+t.b+'</p></div>';
+}).join("");
+$$("[data-ltab]").forEach(function(b){
+ b.onclick=function(){
+   $$("[data-ltab]").forEach(function(x){x.classList.remove("active");});
+   b.classList.add("active");
+   $$("#ltabPanes [data-lpane]").forEach(function(p){p.classList.toggle("hidden",p.dataset.lpane!==b.dataset.ltab);});
+ };
+});
+
+/* ---------- 測驗 ---------- */
+const QUIZ=[
+ {q:"「向之所欣……已為陳跡，猶不能不以之興懷；況脩短隨化，終期於盡」主要使用的論證方法是？",
+  o:["類比論證","層遞論證（由輕及重）","歸謬法","訴諸權威"],a:1,
+  e:"「猶……況……」是典型層遞：短暫歡樂消逝尚且令人感懷（輕），更何況有限生命終歸於盡（重）——以輕證重，使結論無可推辭。"},
+ {q:"從辯證邏輯看，「樂」與「痛」的關係是？",
+  o:["兩種互不相干的情緒","外在變故造成的突然轉折","痛是樂的內在自我否定（樂極生悲）","痛先於樂而存在"],a:2,
+  e:"「暫得於己」已把短暫性寫進快樂的定義——消逝的動力來自歡樂自身（所之既倦），不待外力。這是辯證法所謂「內在否定」。"},
+ {q:"「雖趣舍萬殊，靜躁不同，當其欣於所遇……不知老之將至」運用的論證策略是？",
+  o:["先承認差異，再提取共相，最後歸納出通則","直接舉反例推翻對方","訴諸情感打動讀者","以比喻代替論證"],a:0,
+  e:"先讓步（承認靜躁萬殊）→ 提取共相（皆欣於所遇、不知老之將至）→ 推出通則（一切活法皆有限）。先立共識再下判斷，論證遂不可抵抗。"},
+ {q:"王羲之批判「一死生為虛誕」時，最強而有力的邏輯證據是？",
+  o:["引用儒家經典","臨文嗟悼、不能喻之於懷的情感事實","自身的政治地位","生理與醫學論證"],a:1,
+  e:"這是否證式：若齊生死成立，則不應對古人傷逝之文悲悼；但事實上「未嘗不臨文嗟悼」——情感事實反證理論無效。"},
+ {q:"莊子的「一死生」在本質上屬於何種命題？",
+  o:["事實命題（生死是否相同）","價值態度命題（應如何面對生死）","定義命題","數學命題"],a:1,
+  e:"它回答的是「如何面對死亡」而非「死亡是什麼」。王羲之的批判之所以有力，正因為他把焦點對準了這個態度的有效性，而非糾纏形上學真假。"},
+ {q:"「後之視今，亦猶今之視昔」的論證結構屬於？",
+  o:["因果論證","時間對稱＋類比推論","歸納統計","訴諸傳統"],a:1,
+  e:"時間對稱（後人視今＝今人視昔）加上情感恆常前提（其致一也），構成類比推論：我今日之感懷，必被後人以同樣方式感懷——記錄因此有意義。"},
+ {q:"面對「生命終歸消亡」，王羲之最終選擇的答案是？",
+  o:["及時行樂","以玄學齊物消解悲痛","記錄與立言，讓感懷穿越時間、與後世共鳴","求仙訪藥"],a:2,
+  e:"他不逃避（行樂），也不麻醉（齊物），而是承認痛的真實，並「列敘時人，錄其所述」——死不可免，而情可不朽。"},
+ {q:"全文論證的完整進程，正確的順序是？",
+  o:["批判 → 抒情 → 寫景 → 作結","經驗立基（樂）→ 內在否定（痛）→ 歸納普遍化（悲）→ 破虛妄、立真實（悟）","先破後立，與情感無關","純粹寫景，沒有論證"],a:1,
+  e:"樂建立經驗前提，痛完成內在否定，悲把結論普遍化，悟先破齊生死之虛妄、再立記錄共鳴之真實——五步環環相扣，構成完整論證。"}
+];
+let qi=0,score=0,answered=false;
+function renderQuiz(){
+ const box=$("#quizBox");
+ if(qi>=QUIZ.length){
+   const pct=score/QUIZ.length;
+   let badge;
+   if(pct===1)badge=["🏆","思辨宗師","八題全對！你已完全掌握〈蘭亭集序〉的論證結構。"];
+   else if(pct>=.75)badge=["🥇","蘭亭辯士","相當出色！重溫錯題解析，推理將更嚴密。"];
+   else if(pct>=.5)badge=["🎋","曲水學徒","已入門！回到三個主題章節，再看一次論證重建。"];
+   else badge=["📖","再讀蘭亭","別灰心，從「論證總圖」重新開始，一步一步拆解。"];
+   box.innerHTML='<div class="text-center"><p class="text-6xl">'+badge[0]+'</p>'+
+   '<p class="brush text-3xl text-cinnabar mt-3">得分 '+score+' / '+QUIZ.length+'</p>'+
+   '<p class="font-black mt-2">稱號：'+badge[1]+'</p>'+
+   '<p class="text-sm text-ink/60 mt-2 leading-6">'+badge[2]+'</p>'+
+   '<button id="restart" class="mt-6 bg-cinnabar text-white font-bold px-8 py-3 rounded-full hover:-translate-y-0.5 transition">↻ 重新挑戰</button></div>';
+   $("#restart").onclick=function(){qi=0;score=0;renderQuiz();};
+   return;
+ }
+ const q=QUIZ[qi];answered=false;
+ box.innerHTML=
+ '<div class="flex items-center justify-between text-xs font-bold text-ink/50 mb-3">'+
+ '<span>第 '+(qi+1)+' / '+QUIZ.length+' 題</span><span>目前得分：'+score+'</span></div>'+
+ '<div class="h-2 bg-mist rounded-full mb-5"><div class="h-2 rounded-full" style="width:'+(qi/QUIZ.length*100)+'%;background:linear-gradient(90deg,#C8402F,#C08A2D)"></div></div>'+
+ '<p class="font-black text-lg leading-7">'+q.q+'</p>'+
+ '<div class="space-y-3 mt-5">'+
+ q.o.map(function(o,i){return '<button class="qopt w-full text-left bg-white border-2 border-ink/10 rounded-xl px-4 py-3 text-sm font-bold" data-o="'+i+'"><span class="text-gold mr-2">'+"ABCD"[i]+'</span>'+o+'</button>';}).join("")+'</div>'+
+ '<div id="qfb" class="hidden mt-5 rounded-xl p-4 text-sm leading-7"></div>'+
+ '<div class="text-right mt-4"><button id="qnext" class="hidden bg-ink text-paper font-bold px-6 py-2.5 rounded-full hover:bg-cinnabar transition">'+(qi===QUIZ.length-1?"查看成績 🏁":"下一題 ▶")+'</button></div>';
+ box.querySelectorAll(".qopt").forEach(function(b){
+   b.onclick=function(){
+     if(answered)return;answered=true;
+     const sel=+b.dataset.o,ok=sel===q.a;
+     if(ok)score++;
+     box.querySelectorAll(".qopt").forEach(function(x){x.classList.add("locked");if(+x.dataset.o===q.a)x.classList.add("correct");});
+     if(!ok)b.classList.add("wrong");
+     const fb=$("#qfb");fb.classList.remove("hidden");
+     fb.className="mt-5 rounded-xl p-4 text-sm leading-7 "+(ok?"bg-jade/10 border border-jade/30":"bg-cinnabar/10 border border-cinnabar/30");
+     fb.innerHTML="<b>"+(ok?"✅ 答對了！":"❌ 再想想——")+" </b>"+q.e;
+     const nx=$("#qnext");nx.classList.remove("hidden");
+     nx.onclick=function(){qi++;renderQuiz();$("#quizBox").scrollIntoView({behavior:"smooth",block:"center"});};
+   };
+ });
+}
+renderQuiz();
+
+/* ---------- reveal / nav / progress ---------- */
+const io=new IntersectionObserver(function(es){
+ es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("on");io.unobserve(e.target);}});
+},{threshold:.1});
+$$(".reveal").forEach(function(el){io.observe(el);});
+setTimeout(function(){$$(".reveal").forEach(function(el){el.classList.add("on");});},2500);
+
+const secs=["map","emotion","life","critique","verdict","quiz"];
+const nio=new IntersectionObserver(function(es){
+ es.forEach(function(e){
+   if(e.isIntersecting){
+     $$(".navlink").forEach(function(a){a.classList.toggle("active",a.getAttribute("href")==="#"+e.target.id);});
+   }
+ });
+},{rootMargin:"-40% 0px -55% 0px"});
+secs.forEach(function(id){const el=document.getElementById(id);if(el)nio.observe(el);});
+window.addEventListener("scroll",function(){
+ const h=document.documentElement;
+ $("#progressbar").style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+"%";
+},{passive:true});
+</script>
+</body>
+</html>
